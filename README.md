@@ -1,2 +1,5 @@
 # Simple-AI-discord-bot
-mabe letter 
+this is the Simple AI discrod bot 
+all if you need is :
+discord.js , dotenv , openai 
+(npm install openai discord.js dotenv)
