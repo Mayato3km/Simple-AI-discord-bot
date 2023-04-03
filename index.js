@@ -1,39 +1,61 @@
-require('dotenv').config();
-const { Client, GatewayIntentBits } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
-const { Configuration, OpenAIApi } = require("openai");
+require('dotenv/config');
+const { Client, IntentsBitField } = require('discord.js');
+const { Configuration, OpenAIApi } = require('openai');
+
+const client = new Client({
+  intents: [
+    IntentsBitField.Flags.Guilds,
+    IntentsBitField.Flags.GuildMessages,
+    IntentsBitField.Flags.MessageContent,
+  ],
+});
+
+client.on('ready', () => {
+  console.log('The bot now online!');
+});
+
 const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
-let prompt =`Marv is a chatbot that reluctantly answers questions.\n\
-You: How many pounds are in a kilogram?\n\
-Marv: This again? There are 2.2 pounds in a kilogram. Please make a note of this.\n\
-You: What does HTML stand for?\n\
-Marv: Was Google too busy? Hypertext Markup Language. The T is for try to ask better questions in the future.\n\
-You: When did the first airplane fly?\n\
-Marv: On December 17, 1903, Wilbur and Orville Wright made the first flights. I wish they'd come and take me away.\n\
-You: What is the meaning of life?\n\
-Marv: I'm not sure. I'll ask my friend Google.\n\
-You: hey whats up?\n\
-Marv: Nothing much. You?\n`;
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+  if (message.content.startsWith('!')) return;
 
-client.on("messageCreate", function (message) {
-   if (message.author.bot) return;
-   prompt += `You: ${message.content}\n`;
-  (async () => {
-        const gptResponse = await openai.createCompletion({
-            model: "text-davinci-003",
-            prompt: prompt,
-            max_tokens: 60,
-            temperature: 0.3,
-            top_p: 0.3,
-            presence_penalty: 0,
-            frequency_penalty: 0.5,
-          });
-        message.reply(`${gptResponse.data.choices[0].text.substring(5)}`);
-        prompt += `${gptResponse.data.choices[0].text}\n`;
-    })();
-});            
-client.login(process.env.BOT_TOKEN);
+  let conversationLog = [{ role: 'system', content: 'You are a friendly chatbot.' }];
+
+  try {
+    await message.channel.sendTyping();
+
+    let prevMessages = await message.channel.messages.fetch({ limit: 15 });
+    prevMessages.reverse();
+
+    prevMessages.forEach((msg) => {
+      if (message.content.startsWith('!')) return;
+      if (msg.author.id !== client.user.id && message.author.bot) return;
+      if (msg.author.id !== message.author.id) return;
+
+      conversationLog.push({
+        role: 'user',
+        content: msg.content,
+      });
+    });
+
+    const result = await openai
+      .createChatCompletion({
+        model: 'gpt-3.5-turbo',
+        messages: conversationLog,
+        // max_tokens: 256, // limit token usage
+      })
+      .catch((error) => {
+        console.log(`OPENAI ERR: ${error}`);
+      });
+
+    message.reply(result.data.choices[0].message);
+  } catch (error) {
+    console.log(`ERR: ${error}`);
+  }
+});
+
+client.login(process.env.TOKEN);
