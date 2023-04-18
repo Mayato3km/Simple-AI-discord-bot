@@ -6,19 +6,19 @@ ___
 
 ___
 
-## 1. Install package.json
+# 1. Install package.json
 
 ``npm init -y``
 
-## 2. Install discord.js 
+# 2. Install discord.js 
 
 ``npm install discord.js``
 
-## 3. Install openai
+# 3. Install openai
 
 ``npm Install openai``
 
-## 4. Install dotenv
+##4. Install dotenv
 
 ``npm isnatll dotenv``
 
