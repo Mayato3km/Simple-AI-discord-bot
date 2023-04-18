@@ -31,5 +31,6 @@ await message.channel.sendTyping();
 
     message.reply(result.data.choices[0].message);
 }); 
+console.log(`✅ ${client.user.tag} is online.`);
 
 client.login(process.env.BOT_TOKEN);
