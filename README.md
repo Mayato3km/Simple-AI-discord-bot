@@ -1,10 +1,8 @@
-## Simple AI bot for discord (.js)
+### Simple AI bot for discord (.js)
 
 ___
 
 ## all if you need 
-
-___
 
 ___
 
@@ -18,6 +16,16 @@ ___
 
 ## 3. Install openai
 
-``npm install openai``
+``npm Install openai``
 
-## 4.
+## 4. Install dotenv
+
+``npm isnatll dotenv``
+
+___
+
+### Run you'r bot 
+
+``node index.js``
+
+___
